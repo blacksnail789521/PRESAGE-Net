@@ -14,7 +14,7 @@ class MCMP_dataset(Dataset):
         self.x_time_length = x_time_length
         self.mode = mode
         
-        assert self.mode in ['train', 'validate', 'test']
+        assert self.mode in ['train', 'val', 'test']
         self.root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
         self.df = pd.read_csv(os.path.join(self.root_path, 'data', f'{mode}.csv'), index_col = 'time_stamp')
         
@@ -42,14 +42,15 @@ class MCMP_dataset(Dataset):
 if __name__ == '__main__':
     
     '''---------------------------------------------------------------'''
-    x_time_length = 5
-    # x_time_length = 128
+    # x_time_length = 5
+    x_time_length = 128
     
     mode = 'train'
-    # mode = 'validate'
+    # mode = 'val'
     # mode = 'test'
     
-    batch_size = 4
+    # batch_size = 4
+    batch_size = 128
     
     # shuffle = True
     shuffle = False
