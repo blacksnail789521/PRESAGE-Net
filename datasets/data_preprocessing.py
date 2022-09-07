@@ -22,12 +22,20 @@ def process_MCMP_raw_data(
     df.set_index(pd.to_datetime(df.pop('time_stamp')), inplace = True)
     
     # Make sure to have unified sample rate
-    df = df.resample(f'{sample_rate}S').mean()
+    df = df.resample(f'{sample_rate}S').mean().interpolate()
+    assert df.isnull().values.any() == False, 'There are some nan values.'
     
     # Remove columns with too many zero entries.
     print(f'Before: {df.shape[1]}')
     df = df.loc[:, df.eq(0).mean() < 0.3]
     print(f'After: {df.shape[1]}')
+    
+    # Normalize data (only for x, not y)
+    x_cols = [ col for col in df.columns if 'Measurement' not in col ]
+    y_cols = [ col for col in df.columns if 'Measurement' in col ]
+    df_x, df_y = df[x_cols], df[y_cols]
+    df_x = (df_x - df_x.mean()) / df_x.std()
+    df = pd.concat([df_x, df_y], axis = 1)
     
     # Split into train, val, test
     assert np.sum(split_ratio) == 1, 'sum of split_ratio should be equal to one'

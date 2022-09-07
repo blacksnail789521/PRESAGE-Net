@@ -22,8 +22,8 @@ class MCMP_dataset(Dataset):
         self.x_cols = [ col for col in self.df.columns if not re.search('Stage1.*.Actual', col) ]
         self.y_cols = [ col for col in self.df.columns if re.search('Stage1.*.Actual', col) ]
         
-        self.x_all = self.df[self.x_cols].to_numpy()
-        self.y_all = self.df[self.y_cols].to_numpy()
+        self.x_all = self.df[self.x_cols].to_numpy(dtype = np.float32) # Make sure it's float, not double
+        self.y_all = self.df[self.y_cols].to_numpy(dtype = np.float32)
         
         
     def __len__(self) -> int:
@@ -57,8 +57,10 @@ if __name__ == '__main__':
     '''---------------------------------------------------------------'''
     
     ds = MCMP_dataset(x_time_length, mode)
+    df = ds.df # Load df to see the raw data
     ds_loader = DataLoader(ds, batch_size = batch_size, shuffle = shuffle)
     ds_iterator = iter(ds_loader)
     
     x_batch, y_batch = next(ds_iterator)
+    assert x_batch.type() == 'torch.FloatTensor', x_batch.type()
     x_batch_numpy, y_batch_numpy = x_batch.numpy(), y_batch.numpy()
